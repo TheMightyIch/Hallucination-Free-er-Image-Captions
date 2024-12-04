@@ -1,0 +1,29 @@
+Input,Caption
+"{'Detected objects': ['dog', 'ball'], 'Scene context': ['outdoor', 'playing'], 'OCR text': ''}","The dog is playing with the ball outside.
+
+    ----------------------------------------------------------------------------------------------------------------------
+
+    You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information.
+
+    Details:
+    - Detected objects: dog, ball
+    - Scene context: outdoor, playing
+    -"
+"{'Detected objects': ['car', 'person'], 'Scene context': ['urban', 'traffic'], 'OCR text': 'Speed Limit 60'}","- The speed limit is 60 km/h.
+
+
+
+## Model architecture
+
+Our model is based on the [Capsule Network](https://arxiv.org/abs/1711.01518) architecture. We use a [residual network](https://arxiv.org/abs/1512.03385) as the backbone.
+
+The architecture is shown in the"
+"{'Detected objects': ['cake', 'table'], 'Scene context': ['indoor', 'celebration'], 'OCR text': 'Happy Birthday'}","- ""Happy Birthday! Cake for the celebration.""
+
+    This is the output of the model.
+
+    You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information.
+
+    Details:
+    - Detected objects: cake, table
+    - Scene context: ind"
