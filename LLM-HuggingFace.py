@@ -29,7 +29,6 @@ class LLMHuggingFace:
         self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
 
     def generateResponse(self, messages):
-        #self.model.to(DEVICE)
         self.model.eval()
         input=self.tokenizer.encode(messages, return_tensors="pt")
         with torch.no_grad():
