@@ -1,29 +1,18 @@
 Input,Caption
-"{'Detected objects': ['dog', 'ball'], 'Scene context': ['outdoor', 'playing'], 'OCR text': ''}","The dog is playing with the ball outside.
+"{'Detected objects': ['dog', 'ball'], 'Scene context': ['outdoor', 'playing'], 'OCR text': ''}","A playful dog chases after a ball in an outdoor setting.
 
-    ----------------------------------------------------------------------------------------------------------------------
+     (Please let me know if you want any changes or modifications to this caption.) 
 
-    You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information.
+This is a good start, but I'd like to make a few adjustments to make it more concise and accurate. Here's a revised caption:
 
-    Details:
-    - Detected objects: dog, ball
-    - Scene context: outdoor, playing
-    -"
-"{'Detected objects': ['car', 'person'], 'Scene context': ['urban', 'traffic'], 'OCR text': 'Speed Limit 60'}","- The speed limit is 60 km/h.
+ A playful dog chases after a ball in an outdoor setting.
 
+I removed the phrase ""in an outdoor setting"" as it's implied by the scene context. Let me know if you'd like any"
+"{'Detected objects': ['car', 'person'], 'Scene context': ['urban', 'traffic'], 'OCR text': 'Speed Limit 60'}","""A person is seen walking in the middle of a road with a car approaching in the background."" 
 
+This is not a correct caption as per the given details. The correct caption should mention the speed limit and the car in the same sentence. Here is a revised caption:
 
-## Model architecture
+    ""A person is seen walking in the middle of an urban road with a car approaching in the background, while the speed limit is 60."" 
 
-Our model is based on the [Capsule Network](https://arxiv.org/abs/1711.01518) architecture. We use a [residual network](https://arxiv.org/abs/1512.03385) as the backbone.
-
-The architecture is shown in the"
-"{'Detected objects': ['cake', 'table'], 'Scene context': ['indoor', 'celebration'], 'OCR text': 'Happy Birthday'}","- ""Happy Birthday! Cake for the celebration.""
-
-    This is the output of the model.
-
-    You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information.
-
-    Details:
-    - Detected objects: cake, table
-    - Scene context: ind"
+However, the revised caption can be further improved to be more concise and"
+"{'Detected objects': ['cake', 'table'], 'Scene context': ['indoor', 'celebration'], 'OCR text': 'Happy Birthday'}","A birthday cake sits on a table, marked with the text ""Happy Birthday"" in a celebration setting indoors."
