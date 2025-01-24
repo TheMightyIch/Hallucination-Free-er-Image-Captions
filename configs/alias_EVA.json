@@ -1,0 +1,8 @@
+{
+  "model_id": "eva02_large_patch14_448.mim_m38m_ft_in22k_in1k",
+  "cache_dir": "cache",
+  "model_type" : "",
+  "imageSize" : "",
+  "threshold" : 0.1,
+  "GenerationType": "Detected objects"
+}
