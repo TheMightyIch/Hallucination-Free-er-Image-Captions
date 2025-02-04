@@ -243,3 +243,4 @@ fabric.properties
 /AMBER.zip
 /cache/
 /pretrained/
+GroundingDINO_Model/groundingdino_swint_ogc.pth
