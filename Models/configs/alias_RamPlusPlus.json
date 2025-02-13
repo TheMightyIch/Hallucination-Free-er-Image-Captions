@@ -3,5 +3,6 @@
   "cache_dir": "cache",
   "model_type" : "swin_l",
   "imageSize" : 384,
-  "GenerationType": "Scene context"
+  "GenerationType": "Scene context",
+  "ToDevice": "yes"
 }

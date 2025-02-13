@@ -241,5 +241,5 @@ fabric.properties
 
 /image/
 /AMBER.zip
-/cache/
-/pretrained/
+/Models/cache/
+/Models/pretrained/

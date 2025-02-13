@@ -1,0 +1,5 @@
+{
+  "Models": ["LLAMA32","EVA", "Owl","RamPlusPlus"],
+  "LLM": "LLAMA32",
+  "Prompt": "You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information and keep the caption short and relevant.\nDetails:\n- Detected objects: {Objects},\n- Scene context: {Context},\n- OCR text: {OCR}\nCaption:"
+}

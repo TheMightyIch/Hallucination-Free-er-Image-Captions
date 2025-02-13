@@ -4,17 +4,14 @@ from PIL import Image
 from transformers import OwlViTProcessor, OwlViTForObjectDetection
 from transformers.utils.constants import OPENAI_CLIP_MEAN, OPENAI_CLIP_STD
 
-import HuggingFacePipeline
-import RamPlusPlus
+from Models.AbstractModel import AbstractModel
 
 
-class Owl(HuggingFacePipeline.AbstractModel):
+class Owl(AbstractModel):
     def __init__(self, model_name: str):
         super().__init__(model_name)
         self.autoProcessor =  OwlViTProcessor.from_pretrained(self.id)
-        self.model = self.generateModel()
-        self.model.eval()
-        self.model.to(self.DEVICE)
+
 
     def generateModel(self, **inputs):
         return OwlViTForObjectDetection.from_pretrained(self.id)
@@ -39,11 +36,11 @@ class Owl(HuggingFacePipeline.AbstractModel):
 
 
 if __name__ == "__main__":
-    import requests
-    owl = Owl("google/owlvit-base-patch32")
+    import  RamPlusPlus
+    owl = Owl("Owl")
     i = 0  # Retrieve predictions for the first image for the corresponding text queries
     texts= [RamPlusPlus.test()]
-    image=Image.open("./image/AMBER_2.jpg")
+    image=Image.open("../image/AMBER_2.jpg")
     text = texts[i]
     result= owl.generateResponse(texts, image)
     boxes, scores, labels = result[i]["boxes"], result[i]["scores"], result[i]["labels"]
