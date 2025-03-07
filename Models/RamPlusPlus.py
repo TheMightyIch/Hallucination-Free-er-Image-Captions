@@ -32,6 +32,7 @@ def test():
     im = Image.open(imagePath)
     im.resize((384, 384))
     ra = RamPlusPlus("RamPlusPlus")
+    ra.loadModel()
     return ra.generateResponse(im)
 if __name__ == "__main__":
    print(test())

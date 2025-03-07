@@ -42,6 +42,7 @@ if __name__ == "__main__":
     texts= [RamPlusPlus.test()]
     image=Image.open("../image/AMBER_2.jpg")
     text = texts[i]
+    owl.loadModel()
     result= owl.generateResponse(texts, image)
     boxes, scores, labels = result[i]["boxes"], result[i]["scores"], result[i]["labels"]
 

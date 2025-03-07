@@ -31,9 +31,11 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     img_url = "https://huggingface.co/ybelkada/segment-anything/resolve/main/assets/car.png"
     raw_image = Image.open(requests.get(img_url, stream=True).raw).convert("RGB")
-    sam = RobustSAM("robustSAM")
+    sam = RobustSAM("RobustSAM")
+    sam.loadModel()
     outputs,masks=sam.generateResponse(raw_image)
 
+    print(masks)
 
     def show_mask(mask, ax, random_color=False):
         if random_color:
@@ -43,7 +45,7 @@ if __name__ == "__main__":
 
         # get the height and width from the mask
         h, w = mask.shape[-2:]
-        mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
+        mask_image = mask.reshape(h, w, 1)
         ax.imshow(mask_image)
 
 
