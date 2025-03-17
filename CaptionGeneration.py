@@ -48,8 +48,17 @@ def define_models(allowed_models: list[str]):
 
 def create_prompt_info(image: Image, model_list: list):
     result = {}
-    for model in model_list:
+    tagGenerationModel= [model for model in model_list if model.config["GenerationType"] == "Scene context"]
+    for model in tagGenerationModel:
+        print("Loading model: ", model.model_alias)
         model.loadModel()
+        result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image))
+    otherModels=set(model_list)-set(tagGenerationModel)
+    for model in otherModels:
+        print("Loading model: ", model.model_alias)
+        model.loadModel()
+        if model.config["tag_input_needed"] == "yes":
+            result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image, ['. '.join(str(object)) for object in result["Scene context"]]))
         result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image))
     return result
 
@@ -57,7 +66,8 @@ def create_prompt_info(image: Image, model_list: list):
 def create_prompt(prompt:str, data: dict[str,str])-> str:
     return prompt.format(Objects=[', '.join(str(object)) for object in data['Detected objects']],
                Context=[', '.join(str(object)) for object in data['Scene context']],
-               OCR=data['OCR text'] if 'OCR text' in data.keys() else 'None')
+               OCR=data['OCR text'] if 'OCR text' in data.keys() else 'None',
+                WorldKnowledge = data['WorldKnowledge'] if 'WorldKnowledge' in data.keys() else 'None')
 
 def load_run_cfg(run_setting :str):
     file_name = f'{os.getcwd()}/Models/configs/{run_setting}.json'
@@ -126,7 +136,9 @@ def secondTest():
         assert "Error: Duplicate models detected"
         return
     image = Image.open("image/AMBER_2.jpg")
+    print("Image loaded")
     data = create_prompt_info(image, models)
+    print("Prompt info created")
     prompt = create_prompt(cfg["Prompt"],data)
     print(f"Prompt for Example:\n{prompt}\n{'-' * 50}")  # Debug prompt
     # Generate caption
@@ -149,11 +161,10 @@ def secondTest():
 
 if __name__ == "__main__":
     import Models.LLAMA32
-    llmmodel = LLAMA32("LLAMA32")
     # Run the test
-    results = secondTest(llmmodel)
+    results = secondTest()
     #
-    # # Save results to a CSV for analysis
-    # df = pd.DataFrame(results)
-    # df.to_csv("generated_captions.csv", index=False)
-    # print("Results saved to 'generated_captions.csv'")
+    # Save results to a CSV for analysis
+    df = pd.DataFrame(results)
+    df.to_csv("generated_captions.csv", index=False)
+    print("Results saved to 'generated_captions.csv'")

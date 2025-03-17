@@ -15,7 +15,7 @@ class RamPlusPlus(AbstractModel):
         self.transform = get_transform(self.image_size)
 
     def generateModel(self, **inputs):
-        model = ram_plus(pretrained=self.config['model_id'],vit=self.config['model_type'],image_size=self.image_size)
+        model = ram_plus(pretrained=os.getcwd()+"/Models/"+self.config['model_id'],vit=self.config['model_type'],image_size=self.image_size)
         return model
 
     def generateResponse(self, image):
