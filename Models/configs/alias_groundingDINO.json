@@ -1,5 +1,6 @@
 {
-  "model_id": "IDEA-Research/grounding-dino-base",
+  "model_id": "Models/pretrained/groundingdino_swint_ogc.pth",
+  "config_path": "GroundingDINO/GroundingDINO_SwinT_OGC.py",
   "model_type": "causal",
   "cache_dir": "cache",
   "GenerationType": "Detected objects",
