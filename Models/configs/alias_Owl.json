@@ -4,5 +4,6 @@
   "model_type" : "",
   "imageSize" : "",
   "threshold" : 0.1,
-  "GenerationType": "Detected objects"
+  "GenerationType": "Detected objects",
+  "ToDevice": "yes"
 }

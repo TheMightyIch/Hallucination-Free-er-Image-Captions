@@ -4,5 +4,6 @@
   "cache_dir": "cache",
   "responseLength": 100,
   "temperature": 0.7,
-  "Quantization": "8bit"
+  "Quantization": "8bit",
+  "ToDevice": "yes"
 }

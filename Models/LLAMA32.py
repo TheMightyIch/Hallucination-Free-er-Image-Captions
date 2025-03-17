@@ -1,21 +1,18 @@
 import torch
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import os
-import HuggingFacePipeline
+
+from Models.AbstractModel import  AbstractModel
 
 
 
-class LLAMA(HuggingFacePipeline.AbstractModel):
+class LLAMA32(AbstractModel):
     def __init__(self, model_name ):
         super().__init__(model_name)
         self.token = os.environ["HFACESSTOKEN"]
         self.responseLength = int(self.config['responseLength'])
         self.temperature = float(self.config['temperature'])
         self.Quantization = self.config['Quantization'] if self.config['Quantization'] else ""
-        self.model = self.generateModel()
-        self.model.eval()
-
-
 
     def generateModel(self, **inputs):
         if self.Quantization == "8bit":
@@ -34,6 +31,8 @@ class LLAMA(HuggingFacePipeline.AbstractModel):
         model.generation_config.pad_token_id = self.tokenizer.pad_token_id
         return model
 
+
+
     def generateResponse(self, messages):
         input=self.tokenizer.encode(messages, return_tensors="pt").to(self.DEVICE)
         with torch.no_grad():
@@ -46,5 +45,5 @@ if __name__ == "__main__":
     llama3_8B="meta-llama/Meta-Llama-3-8B-Instruct"
     task = "text-generation"
     device ="auto"
-    Llama = LLAMA(llama_id)
+    Llama = LLAMA32(llama_id)
     print(Llama.generateResponse("Hello, how are you?"))
