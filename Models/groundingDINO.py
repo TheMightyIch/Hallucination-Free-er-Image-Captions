@@ -1,10 +1,12 @@
+
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 import torch
 from Models.AbstractModel import AbstractModel
-
+import os
+from GroundingDINO.groundingdino.util.inference import load_model, load_image, predict, annotate
 
 class groundingDINO(AbstractModel):
-    def __init__(self, model_name: str):
+    def __init__(self,model_name: str):
         super().__init__(model_name)
 
     def generateModel(self, **inputs):
