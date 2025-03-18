@@ -39,6 +39,10 @@ class LLAMA32(AbstractModel):
             output = self.model.generate(input,pad_token_id=self.tokenizer.eos_token_id, max_new_tokens=self.responseLength, temperature=self.temperature)
         return self.tokenizer.decode(output[0], skip_special_tokens=True)
 
+    def cleanModel(self):
+        super().cleanModel()
+        del self.tokenizer
+
 
 if __name__ == "__main__":
     llama_id ="LLAMA32"
@@ -46,4 +50,5 @@ if __name__ == "__main__":
     task = "text-generation"
     device ="auto"
     Llama = LLAMA32(llama_id)
+    Llama.loadModel()
     print(Llama.generateResponse("Hello, how are you?"))

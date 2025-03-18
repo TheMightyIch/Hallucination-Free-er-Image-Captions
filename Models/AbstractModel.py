@@ -35,11 +35,17 @@ class AbstractModel(ABC):
         if self.config["ToDevice"]=="no":
             return
         self.model.to(self.DEVICE)
+        print(f"Model {self.model_alias} loaded to {self.DEVICE}")
 
     @abstractmethod
     def generateResponse(self, **inputs):
         pass
     @abstractmethod
     def generateModel(self, **inputs):
+        pass
+
+    @abstractmethod
+    def cleanModel(self):
+        del self.model
         pass
 

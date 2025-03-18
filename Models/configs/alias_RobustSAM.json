@@ -1,7 +1,7 @@
 {
   "model_id": "jadechoghari/robustsam-vit-base",
   "model_type": "causal",
-  "cache_dir": "cache",
+  "cache_dir": "Models/cache",
   "GenerationType": "Detected objects",
   "ToDevice": "yes",
   "pretrained": "yes"

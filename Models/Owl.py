@@ -34,6 +34,10 @@ class Owl(AbstractModel):
         unnormalized_image = Image.fromarray(unnormalized_image)
         return unnormalized_image
 
+    def cleanModel(self):
+        super().cleanModel()
+        del self.autoProcessor
+
 
 if __name__ == "__main__":
     import  RamPlusPlus

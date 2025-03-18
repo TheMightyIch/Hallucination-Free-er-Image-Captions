@@ -1,5 +1,5 @@
 {
-  "model_id": "meta-llama/Llama-3.2-3B-Instruct",
+  "model_id": "IDEA-Research/grounding-dino-tiny",
   "model_type": "causal",
   "cache_dir": "cache",
   "responseLength": 100,

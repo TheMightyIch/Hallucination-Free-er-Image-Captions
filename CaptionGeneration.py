@@ -1,11 +1,15 @@
 # Function to create a prompt
 import json
 
+import pandas
 import pandas as pd
+import torch.cuda
 from PIL import Image
 import os
 import importlib
 import inspect
+
+from pandas import DataFrame
 
 import Models.AbstractModel
 
@@ -46,28 +50,41 @@ def define_models(allowed_models: list[str]):
     return models
 
 
-def create_prompt_info(image: Image, model_list: list):
-    result = {}
+def create_prompt_data(images: list[Image], model_list: list)-> pandas.DataFrame:
+    result={("id", ""): [image.filename for image in images]}
     tagGenerationModel= [model for model in model_list if model.config["GenerationType"] == "Scene context"]
     for model in tagGenerationModel:
         print("Loading model: ", model.model_alias)
         model.loadModel()
-        result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image))
+        for image in images:
+            result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image))
+        model.cleanModel()
+        torch.cuda.empty_cache()
     otherModels=set(model_list)-set(tagGenerationModel)
     for model in otherModels:
         print("Loading model: ", model.model_alias)
         model.loadModel()
-        if model.config["tag_input_needed"] == "yes":
-            result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image, ['. '.join(str(object)) for object in result["Scene context"]]))
-        result.setdefault(model.config["GenerationType"], []).append(model.generateResponse(image))
-    return result
+        for index, image in enumerate(images):
+            if model.config["tag_input_needed"] == "yes":
+                tags=[value[index] for key, value in result.items() if isinstance(key, tuple) and "Scene context" in key]
+                result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image, tags))
+            else:
+                result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image))
+        model.cleanModel()
+        torch.cuda.empty_cache()
+    df = pd.DataFrame(result)
+    df.columns = pd.MultiIndex.from_tuples(df.columns)
+    return df
 
 
-def create_prompt(prompt:str, data: dict[str,str])-> str:
-    return prompt.format(Objects=[', '.join(str(object)) for object in data['Detected objects']],
-               Context=[', '.join(str(object)) for object in data['Scene context']],
-               OCR=data['OCR text'] if 'OCR text' in data.keys() else 'None',
-                WorldKnowledge = data['WorldKnowledge'] if 'WorldKnowledge' in data.keys() else 'None')
+def create_prompts(prompt:str, data: pandas.DataFrame)-> DataFrame:
+    def create_prompt(row)->str:
+        return prompt.format(Objects=row['Detected objects'].values,
+           Context=str(row['Scene context'].values),
+           OCR=row['OCR text'] if 'OCR text' in data.keys() else 'None',
+            WorldKnowledge = row['WorldKnowledge'] if 'WorldKnowledge' in data.keys() else 'None')
+    data["prompt"]=data.apply(create_prompt, axis=1)
+    return data
 
 def load_run_cfg(run_setting :str):
     file_name = f'{os.getcwd()}/Models/configs/{run_setting}.json'
@@ -75,6 +92,26 @@ def load_run_cfg(run_setting :str):
         data = json.load(cfile)
     return data
 
+def generate_caption(llm, data: pandas.DataFrame):
+    results = []
+    llm.loadModel()
+    for idx, row in data.iterrows():
+        # Create prompt
+        prompt = str(row["prompt"].values[0])
+        print(prompt)  # Debug prompt
+        # Generate caption
+        output = llm.generateResponse(
+            prompt
+        )
+        print(output)
+        # Extract the actual caption
+        caption_start = output.find("Caption:") + len("Caption:")
+        caption = output[caption_start:].strip() if caption_start > 0 else output.strip()
+        results.append(caption)
+    llm.cleanModel()
+    torch.cuda.empty_cache()
+    data["caption"]=caption
+    return data
 
 # Example inputs for testing
 example_inputs = [
@@ -102,7 +139,7 @@ def test_pipeline(inputs, llm):
 
     for idx, data in enumerate(inputs):
         # Create prompt
-        prompt = create_prompt(data)
+        prompt = create_prompts(data)
         print(f"Prompt for Example {idx + 1}:\n{prompt}\n{'-' * 50}")  # Debug prompt
         # Generate caption
         output = llm.generateResponse(
@@ -121,7 +158,7 @@ def test_pipeline(inputs, llm):
     return results
 
 
-def secondTest():
+def secondTest()-> DataFrame:
     cfg= load_run_cfg("RunSettings")
     models = define_models(cfg["Models"])
     llm = [model for model in models if model.config["GenerationType"] == "LLM"]
@@ -129,42 +166,27 @@ def secondTest():
         llm=(lambda x: x)(*llm)
     except Exception as e:
         print(f"Error loading LLM, either to few or to many LLMs found: {e}")
-        return
+        exit()
 
     models[:] = (model for model in models if model.config["GenerationType"] != "LLM")
     if len(models)> len(set(models)):
         assert "Error: Duplicate models detected"
-        return
-    image = Image.open("image/AMBER_2.jpg")
+        exit()
+    image = [Image.open("image/AMBER_2.jpg")]
     print("Image loaded")
-    data = create_prompt_info(image, models)
+    data = create_prompt_data(image, models)
     print("Prompt info created")
-    prompt = create_prompt(cfg["Prompt"],data)
-    print(f"Prompt for Example:\n{prompt}\n{'-' * 50}")  # Debug prompt
+    data = create_prompts(cfg["Prompt"],data)
     # Generate caption
-    llm.loadModel()
-    output = llm.generateResponse(
-        prompt
-    )
-
-    # Extract the actual caption
-    caption_start = output.find("Caption:") + len("Caption:")
-    caption = output[caption_start:].strip() if caption_start > 0 else output.strip()
-
-    # Save results
-    result = {"Input": data, "Caption": caption}
-
-    # Print results for quick inspection
-    print(f"Example:\nInput: {data}\nGenerated Caption: {caption}\n{'-' * 50}")
+    result = generate_caption(llm, data)
     return result
 
 
 if __name__ == "__main__":
     import Models.LLAMA32
     # Run the test
-    results = secondTest()
+    result = secondTest()
     #
     # Save results to a CSV for analysis
-    df = pd.DataFrame(results)
-    df.to_csv("generated_captions.csv", index=False)
+    result.to_csv("generated_captions.csv", index=False)
     print("Results saved to 'generated_captions.csv'")

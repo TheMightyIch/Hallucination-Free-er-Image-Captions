@@ -1,6 +1,6 @@
 {
   "model_id": "google/owlvit-base-patch32",
-  "cache_dir": "cache",
+  "cache_dir": "Models/cache",
   "model_type" : "",
   "imageSize" : "",
   "threshold" : 0.1,

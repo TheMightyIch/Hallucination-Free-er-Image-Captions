@@ -26,6 +26,10 @@ class EVA(AbstractModel):
             output = self.model(self.transforms(image).unsqueeze(0))
         return output
 
+    def cleanModel(self):
+        super().cleanModel()
+        del self.transforms
+
 
 # model = timm.create_model('eva02_large_patch14_448.mim_m38m_ft_in22k_in1k', pretrained=True)
 # model = model.eval()
