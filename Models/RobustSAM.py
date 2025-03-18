@@ -22,6 +22,10 @@ class RobustSAM(AbstractModel):
                                                              inputs["reshaped_input_sizes"].cpu())
         return outputs, masks
 
+    def cleanModel(self):
+        super().cleanModel()
+        del self.processor
+
 
 
 if __name__ == "__main__":

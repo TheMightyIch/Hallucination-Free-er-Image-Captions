@@ -21,18 +21,22 @@ class RamPlusPlus(AbstractModel):
     def generateResponse(self, image):
         image = self.transform(image).unsqueeze(0).to(self.DEVICE)
         output,_ = inference(image, self.model)
-        return output.split('|')
+        return [result.strip() for result in output.split('|')]
 
-def test():
-    model_type = 'swin_l'
-    pretrained = 'pretrained/ram_plus_swin_large_14m.pth'
-    from PIL import Image
+    def cleanModel(self):
+        super().cleanModel()
+        del self.transform
 
-    imagePath = os.path.join(os.path.dirname(os.getcwd())+"/image/AMBER_2.jpg")
-    im = Image.open(imagePath)
-    im.resize((384, 384))
-    ra = RamPlusPlus("RamPlusPlus")
-    ra.loadModel()
-    return ra.generateResponse(im)
 if __name__ == "__main__":
-   print(test())
+    def test():
+        model_type = 'swin_l'
+        pretrained = 'pretrained/ram_plus_swin_large_14m.pth'
+        from PIL import Image
+
+        imagePath = os.path.join(os.path.dirname(os.getcwd())+"/image/AMBER_2.jpg")
+        im = Image.open(imagePath)
+        im.resize((384, 384))
+        ra = RamPlusPlus("RamPlusPlus")
+        ra.loadModel()
+        return ra.generateResponse(im)
+    print(test())

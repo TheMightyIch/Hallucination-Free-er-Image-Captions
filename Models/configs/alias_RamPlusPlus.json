@@ -1,6 +1,6 @@
 {
   "model_id": "pretrained/ram_plus_swin_large_14m.pth",
-  "cache_dir": "cache",
+  "cache_dir": "Models/cache",
   "model_type" : "swin_l",
   "imageSize" : 384,
   "GenerationType": "Scene context",

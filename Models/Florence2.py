@@ -28,3 +28,7 @@ class Florence2(AbstractModel):
 
         parsed_answer = self.processor.post_process_generation(generated_text, task=self.task_prompt, image_size=(image.shape[1], image.shape[0]))
         return parsed_answer
+
+    def cleanModel(self):
+        super().cleanModel()
+        del self.processor

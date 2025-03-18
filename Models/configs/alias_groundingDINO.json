@@ -1,10 +1,11 @@
 {
-  "model_id": "IDEA-Research/grounding-dino-base",
+  "model_id": "IDEA-Research/grounding-dino-tiny",
   "model_type": "causal",
-  "cache_dir": "cache",
+  "cache_dir": "Models/cache",
   "GenerationType": "Detected objects",
   "box_threshold": 0.4,
   "text_threshold": 0.3,
+  "tokenized": true,
   "tag_input_needed": "yes",
   "ToDevice": "yes"
 }
