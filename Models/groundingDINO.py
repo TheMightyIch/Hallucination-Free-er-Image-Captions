@@ -1,9 +1,9 @@
 
-from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 import torch
+from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
+from PIL import Image
 from Models.AbstractModel import AbstractModel
-import os
-from GroundingDINO.groundingdino.util.inference import load_model, load_image, predict, annotate
+
 
 class groundingDINO(AbstractModel):
     def __init__(self,model_name: str):
@@ -14,8 +14,14 @@ class groundingDINO(AbstractModel):
         model = AutoModelForZeroShotObjectDetection.from_pretrained(self.config["model_id"])
         return model
 
-    def generateResponse(self, image,text):
-        inputs = self.processor(images=image, text=text, is_split_into_words=self.config["tokenized"], return_tensors="pt").to(self.DEVICE)
+    def generateResponse(self, image: Image,text):
+        try:
+            inputs = self.processor(images=image, text=text, is_split_into_words=self.config["tokenized"], return_tensors="pt").to(self.DEVICE)
+        except Exception as e:
+            print(type(image))
+            print(image.filename)
+            print(e)
+            inputs = self.processor(images=image, text=text, is_split_into_words= not self.config["tokenized"], return_tensors="pt").to(self.DEVICE)
         with torch.no_grad():
             outputs =self.model(**inputs)
         post_output = self.processor.post_process_grounded_object_detection(
@@ -28,6 +34,7 @@ class groundingDINO(AbstractModel):
         results=[]
         for box, labels in zip(post_output["boxes"], post_output["labels"]):
             results.append("Detected {} at location {}".format(labels, box.tolist()))
+        del inputs
         return results
 
     def cleanModel(self):
@@ -35,7 +42,6 @@ class groundingDINO(AbstractModel):
         del self.processor
 
 if __name__ == "__main__":
-    import requests
     from RamPlusPlus import RamPlusPlus
     from PIL import Image
     ram = RamPlusPlus("RamPlusPlus")

@@ -21,6 +21,7 @@ class RamPlusPlus(AbstractModel):
     def generateResponse(self, image):
         image = self.transform(image).unsqueeze(0).to(self.DEVICE)
         output,_ = inference(image, self.model)
+        del image
         return [result.strip() for result in output.split('|')]
 
     def cleanModel(self):

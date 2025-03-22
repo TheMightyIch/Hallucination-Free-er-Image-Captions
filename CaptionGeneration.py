@@ -1,6 +1,10 @@
 # Function to create a prompt
+import ast
 import json
+import subprocess
+import sys
 
+import numpy as np
 import pandas
 import pandas as pd
 import torch.cuda
@@ -10,9 +14,10 @@ import importlib
 import inspect
 
 from pandas import DataFrame
+from tqdm import tqdm
 
 import Models.AbstractModel
-
+from AMBER.inference import main as amber_main
 MODELS_FOLDER = "Models"
 
 
@@ -50,39 +55,90 @@ def define_models(allowed_models: list[str]):
     return models
 
 
-def create_prompt_data(images: list[Image], model_list: list)-> pandas.DataFrame:
-    result={("id", ""): [image.filename for image in images]}
+def create_prompt_data(images: dict[int : Image], model_list: list, cfg):
+    result={("id",""): images.keys()}
+    df=pd.DataFrame(result)
+    df.to_csv(cfg["data_file_path"], index=False, mode="w")
+    result={}
     tagGenerationModel= [model for model in model_list if model.config["GenerationType"] == "Scene context"]
-    for model in tagGenerationModel:
-        print("Loading model: ", model.model_alias)
+    for model in (pbar:=tqdm(tagGenerationModel, desc="Loading scene context models", total=len(tagGenerationModel), position=0, leave=True)):
+        pbar.set_postfix_str(f"Loading model: {model.model_alias}" )
         model.loadModel()
-        for image in images:
+        for ids,image in (pbar:=tqdm(images.items(), desc="Scene context from Images", total=len(images), position=0, leave=True)):
+            pbar.set_postfix_str(f"Image: {os.path.basename(image.filename)}",)
+            result.setdefault("id",[]).append(int(ids))
             result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image))
+            if len(result["id"])>=cfg["batch_size"]:
+                update_data(result ,cfg, key=(model.config["GenerationType"],model.model_alias))
+                del result
+                result={}
         model.cleanModel()
         torch.cuda.empty_cache()
+        update_data(result ,cfg, key=(model.config["GenerationType"],model.model_alias))
+        del result
+        result = {}
+
+    print("Scene context info created")
     otherModels=set(model_list)-set(tagGenerationModel)
-    for model in otherModels:
-        print("Loading model: ", model.model_alias)
+    for model in (pbar:=tqdm(otherModels, desc="Loading models", total=len(otherModels), position=0, leave=True)):
+        pbar.set_postfix_str(f"Loading model: {model.model_alias}")
         model.loadModel()
-        for index, image in enumerate(images):
-            if model.config["tag_input_needed"] == "yes":
-                tags=[value[index] for key, value in result.items() if isinstance(key, tuple) and "Scene context" in key]
+        tag_batch=pd.read_csv(cfg["data_file_path"],skiprows=0,nrows=cfg["batch_size"])
+        tag_batch = tag_batch.dropna()
+        tag_batch.columns = [ast.literal_eval(col) if col.startswith("(") else col for col in tag_batch.columns]
+        for ids,image in (pbar:=tqdm(images.items(), desc="Scene context from Images", total=len(images), position=0, leave=True)):
+            pbar.set_postfix_str(f"Image: {os.path.basename(image.filename)}",)
+            result.setdefault("id", []).append(int(ids))
+            if model.config["tag_input_needed"]:
+                tags =tag_batch.loc[tag_batch["id"] == int(ids), [col for col in tag_batch.loc[
+                    tag_batch["id"] == int(ids)].columns if "Scene context" in col]].values
+                if tags.shape!=(1,):
+                    tags=np.concatenate(tags).ravel()
+                tags= [item for sublist in map(ast.literal_eval, tags) for item in sublist]
                 result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image, tags))
             else:
                 result.setdefault((model.config["GenerationType"],model.model_alias), []).append(model.generateResponse(image))
+            if len(result["id"])>=cfg["batch_size"]:
+                update_data(result ,cfg, key=(model.config["GenerationType"],model.model_alias))
+                del result
+                result={}
+                if model.config["tag_input_needed"]:
+                    tag_batch=pd.read_csv(cfg["data_file_path"],skiprows=int(int(ids)/cfg["batch_size"])*cfg["batch_size"],nrows=cfg["batch_size"])
+                    tag_batch = tag_batch.dropna(how="all")
+                    column_names= pd.read_csv(cfg["data_file_path"],skiprows=0,nrows=1)
+                    tag_batch.columns = column_names.columns
+                    tag_batch.columns = [ast.literal_eval(col) if col.startswith("(") else col for col in tag_batch.columns]
+
         model.cleanModel()
         torch.cuda.empty_cache()
-    df = pd.DataFrame(result)
-    df.columns = pd.MultiIndex.from_tuples(df.columns)
-    return df
+        update_data(result, cfg, key=(model.config["GenerationType"], model.model_alias))
+        del result
+        result = {}
+    df = pd.read_csv(cfg["data_file_path"])
+    df = df.dropna()
+    df.to_csv(cfg["data_file_path"], index=False, mode="w")
 
+
+
+def update_data(data: dict, cfg, key: tuple):
+    df = pd.read_csv(cfg["data_file_path"])
+    df.columns = [ast.literal_eval(col) if col.startswith("(") else col for col in df.columns]
+    preprocessed= pd.DataFrame(data)
+    #preprocessed.columns = pd.MultiIndex.from_tuples(preprocessed.columns)
+    if key not in df.columns:
+        df = df.merge(preprocessed, on="id", how="left")
+    else:
+        df = df.set_index("id").combine_first(preprocessed.set_index("id")).reset_index()
+    df.to_csv(cfg["data_file_path"], index=False, mode="w")
+    print("Data saved")
+    del df
 
 def create_prompts(prompt:str, data: pandas.DataFrame)-> DataFrame:
     def create_prompt(row)->str:
-        return prompt.format(Objects=row['Detected objects'].values,
-           Context=str(row['Scene context'].values),
-           OCR=row['OCR text'] if 'OCR text' in data.keys() else 'None',
-            WorldKnowledge = row['WorldKnowledge'] if 'WorldKnowledge' in data.keys() else 'None')
+        return prompt.format(Objects=", ".join([item for sublist in map(ast.literal_eval,row[[index for index in row.index if "Detected objects" in index]].values) for item in sublist]),
+           Context=", ".join([item for sublist in map(ast.literal_eval, row[[index for index in row.index if "Scene context" in index]].values) for item in sublist]),
+           OCR=row[[index for index in row.index if "OCR text" in index]].values if 'OCR text' in data.keys() else 'None',
+            WorldKnowledge = [item for sublist in map(ast.literal_eval, row[[index for index in row.index if "WorldKnowledge" in index]].values) for item in sublist] )
     data["prompt"]=data.apply(create_prompt, axis=1)
     return data
 
@@ -92,26 +148,52 @@ def load_run_cfg(run_setting :str):
         data = json.load(cfile)
     return data
 
-def generate_caption(llm, data: pandas.DataFrame):
+def generate_caption(llm, data: pandas.DataFrame,show_prompt:bool=False)-> pandas.DataFrame:
     results = []
-    llm.loadModel()
-    for idx, row in data.iterrows():
+    try:
+        llm.loadModel()
+    except torch.OutOfMemoryError:
+        print("Out of memory error")
+        return data
+    except Exception as e:
+        print(f"Error loading LLM: {e}")
+        return data
+    for idx, row in (pbar:=tqdm(data.iterrows(), desc="Generating captions", total=len(data), position=0, leave=True)):
+        pbar.set_postfix_str(f"AMBER_: {row['id']}")
         # Create prompt
-        prompt = str(row["prompt"].values[0])
-        print(prompt)  # Debug prompt
+        prompt = str(row["prompt"])
+          # Debug prompt
         # Generate caption
         output = llm.generateResponse(
             prompt
         )
-        print(output)
+        if show_prompt:
+            print(prompt)
+            print(output)
         # Extract the actual caption
         caption_start = output.find("Caption:") + len("Caption:")
         caption = output[caption_start:].strip() if caption_start > 0 else output.strip()
         results.append(caption)
     llm.cleanModel()
     torch.cuda.empty_cache()
-    data["caption"]=caption
+    data["caption"]=results
     return data
+
+def load_images(image_path: str)-> dict[int : Image]:
+    images = {}
+    files=os.listdir(image_path)
+    files.sort(key=lambda x: int(x.split("_")[-1].split(".")[0]))
+    for file in files:
+        if file.endswith(".jpg") or file.endswith(".png"):
+            images[file.split("_")[-1].split(".")[0]]= Image.open(os.path.join(image_path, file))
+    return images
+
+def buildEvalJson(data: pandas.DataFrame, file_path:str = "captions.json"):
+    result=[]
+    for idx, row in data.iterrows():
+        result.append({"id": int(row["id"]), "response": row["caption"]})
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
 
 # Example inputs for testing
 example_inputs = [
@@ -158,7 +240,7 @@ def test_pipeline(inputs, llm):
     return results
 
 
-def secondTest()-> DataFrame:
+def main():
     cfg= load_run_cfg("RunSettings")
     models = define_models(cfg["Models"])
     llm = [model for model in models if model.config["GenerationType"] == "LLM"]
@@ -172,21 +254,57 @@ def secondTest()-> DataFrame:
     if len(models)> len(set(models)):
         assert "Error: Duplicate models detected"
         exit()
-    image = [Image.open("image/AMBER_2.jpg")]
-    print("Image loaded")
-    data = create_prompt_data(image, models)
-    print("Prompt info created")
-    data = create_prompts(cfg["Prompt"],data)
+    if cfg["existing_data"]:
+        try:
+            result= pd.read_csv(cfg["data_file_path"])
+            print("Data loaded")
+        except FileNotFoundError:
+            assert "Error: File not found"
+            exit()
+    else:
+        image = load_images(cfg["ImageFolder"])
+        print("Image loaded")
+        create_prompt_data(image, models,cfg=cfg)
+        print("Prompt info created")
+
+    if not cfg["existing_prompt"]:
+        df = pd.read_csv(cfg["data_file_path"])
+        df = df.dropna()
+        df.columns = [ast.literal_eval(col) if col.startswith("(") else col for col in df.columns]
+        df=create_prompts(cfg["Prompt"],df)
+        df.to_csv(cfg["data_file_path"], index=False, mode="w")
+        print("Prompt created")
     # Generate caption
-    result = generate_caption(llm, data)
-    return result
+    if not cfg["existing_data"]:
+        del image
+    if cfg["skip_caption_generation"]:
+        pass
+    else:
+
+        df = pd.read_csv(cfg["data_file_path"])
+        df = df.dropna()
+        df.columns = [ast.literal_eval(col) if col.startswith("(") else col for col in df.columns]
+        if not cfg["existing_caption"]:
+            df=generate_caption(llm, df, cfg["show_prompt"] if "show_prompt" in cfg.keys() else False)
+            df.to_csv(cfg["data_file_path"], index=False, mode="w")
+        print("Caption loaded")
+
+    if cfg["skip_evaluation"]:
+        return
+    df = pd.read_csv(cfg["data_file_path"])
+    buildEvalJson(df, cfg["caption_file_storage"])
+    command = [sys.executable, "AMBER/inference.py", "--inference_data", f"{cfg["caption_file_storage"]}", "--evaluation_type", "g", "--word_association", "AMBER/data/relation.json", "--safe_words","AMBER/data/safe_words.txt", "--annotation","AMBER/data/annotations.json", "--metrics", "AMBER/data/metrics.txt"]
+    scores=subprocess.run(command,capture_output=True, text=True)
+    df["score"]=scores.stdout
+    print(scores.stdout)
+    df.to_csv(cfg["result_path"]+cfg["result_name"], index=False, mode="w")
+    print("Results saved to ")
+    return
 
 
 if __name__ == "__main__":
     import Models.LLAMA32
     # Run the test
-    result = secondTest()
-    #
-    # Save results to a CSV for analysis
-    result.to_csv("generated_captions.csv", index=False)
-    print("Results saved to 'generated_captions.csv'")
+    main()
+
+

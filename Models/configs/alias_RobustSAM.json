@@ -3,6 +3,6 @@
   "model_type": "causal",
   "cache_dir": "Models/cache",
   "GenerationType": "Detected objects",
-  "ToDevice": "yes",
-  "pretrained": "yes"
+  "ToDevice": true,
+  "tag_input_needed": true
 }

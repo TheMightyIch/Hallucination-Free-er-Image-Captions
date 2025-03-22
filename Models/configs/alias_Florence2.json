@@ -1,11 +1,12 @@
 {
   "model_id": "microsoft/Florence-2-large",
-  "ToDevice": "yes",
+  "ToDevice": true,
   "model_type": "causal",
   "GenerationType": "WorldKnowledge",
   "cache_dir": "Models/cache",
   "max_new_tokens": 1024,
   "num_beams": 3,
   "task_prompt": "<MORE_DETAILED_CAPTION>",
+  "tag_input_needed": false,
   "text_prompt": ""
 }

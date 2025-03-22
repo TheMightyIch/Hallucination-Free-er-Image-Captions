@@ -32,10 +32,9 @@ class AbstractModel(ABC):
     def loadModel(self, **inputs):
         self.model=self.generateModel(**inputs)
         self.model.eval()
-        if self.config["ToDevice"]=="no":
-            return
-        self.model.to(self.DEVICE)
-        print(f"Model {self.model_alias} loaded to {self.DEVICE}")
+        if self.config["ToDevice"]:
+            self.model.to(self.DEVICE)
+            print(f"Model {self.model_alias} loaded to {self.DEVICE}")
 
     @abstractmethod
     def generateResponse(self, **inputs):

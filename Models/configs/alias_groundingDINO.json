@@ -6,6 +6,6 @@
   "box_threshold": 0.4,
   "text_threshold": 0.3,
   "tokenized": true,
-  "tag_input_needed": "yes",
-  "ToDevice": "yes"
+  "tag_input_needed": true,
+  "ToDevice": true
 }

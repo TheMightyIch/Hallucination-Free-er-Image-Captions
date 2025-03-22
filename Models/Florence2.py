@@ -1,3 +1,4 @@
+import numpy as np
 from transformers import AutoModelForCausalLM, AutoProcessor
 
 from Models.AbstractModel import AbstractModel
@@ -17,6 +18,7 @@ class Florence2(AbstractModel):
         return model
 
     def generateResponse(self, image):
+        image=np.array(image)
         inputs = self.processor(text=self.prompt, images=image, return_tensors="pt").to(self.DEVICE, self.torch_dtype)
         generated_ids =self.model.generate(
           input_ids=inputs["input_ids"],
@@ -27,8 +29,20 @@ class Florence2(AbstractModel):
         generated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
 
         parsed_answer = self.processor.post_process_generation(generated_text, task=self.task_prompt, image_size=(image.shape[1], image.shape[0]))
-        return parsed_answer
+        return list(parsed_answer.values())
 
     def cleanModel(self):
         super().cleanModel()
         del self.processor
+
+if __name__ == "__main__":
+    import os
+    def test():
+        from PIL import Image
+        imagePath = "S:\phili\GitHub\Hallucination-Free-er-Image-Captions\image\AMBER_2.jpg"
+        im = Image.open(imagePath)
+        im.resize((384, 384))
+        ra = Florence2("Florence2")
+        ra.loadModel()
+        return ra.generateResponse(im)
+    print(test())

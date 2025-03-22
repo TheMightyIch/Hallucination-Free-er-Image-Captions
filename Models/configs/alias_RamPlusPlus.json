@@ -4,5 +4,6 @@
   "model_type" : "swin_l",
   "imageSize" : 384,
   "GenerationType": "Scene context",
-  "ToDevice": "yes"
+  "tag_input_needed": false,
+  "ToDevice": true
 }

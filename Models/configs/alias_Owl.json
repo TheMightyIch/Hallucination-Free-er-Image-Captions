@@ -5,5 +5,6 @@
   "imageSize" : "",
   "threshold" : 0.1,
   "GenerationType": "Detected objects",
-  "ToDevice": "yes"
+  "tag_input_needed": true,
+  "ToDevice": true
 }

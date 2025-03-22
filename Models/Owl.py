@@ -16,7 +16,7 @@ class Owl(AbstractModel):
     def generateModel(self, **inputs):
         return OwlViTForObjectDetection.from_pretrained(self.id)
 
-    def generateResponse(self, labels : list [str], image):
+    def generateResponse(self,  image, labels : list [str]):
         inputs= self.autoProcessor(text= labels, images=image, return_tensors="pt").to(self.DEVICE)
         with torch.no_grad():
             output = self.model(**inputs)
