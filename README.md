@@ -9,7 +9,7 @@ This is a pipeline used for image caption generation. It uses several image expe
 To install all required dependencies follow the steps below. 
 
 ```bash
-  pip install -e
+  pip install -r requirements.txt
 ```
 also install troch depending on your cuda version
 ```bash
