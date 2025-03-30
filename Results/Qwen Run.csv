@@ -1,22 +1,40 @@
-id,"('Scene context', 'RamPlusPlus')","('Detected objects', 'groundingDINO')","('WorldKnowledge', 'Florence2')",prompt,caption
+id,"('Scene context', 'RamPlusPlus')","('Detected objects', 'groundingDINO')","('WorldKnowledge', 'Florence2')",prompt,caption,score
 1.0,"['couple', 'field', 'hand', 'grass', 'grassy', 'green', 'hill', 'hillside', 'person', 'lush', 'man', 'pasture', 'walk', 'woman']",[],"['The image shows a group of three people walking on a grassy hill. They are walking in a line, with the person in the front wearing a blue t-shirt and khaki shorts, the person behind them wearing a white shirt and blue shorts, and the person to the left wearing a gray shirt and black shorts. The hill is covered in green grass and there are trees and bushes on either side. In the background, there is a clear blue sky and a view of the horizon. The group appears to be on a hike or a picnic, enjoying the scenery.']","You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information and keep the caption short and relevant.
 Details:
 - Detected objects: ,
 - Scene context: couple, field, hand, grass, grassy, green, hill, hillside, person, lush, man, pasture, walk, woman,
 - OCR text: None,
  - World Knowledge: ['The image shows a group of three people walking on a grassy hill. They are walking in a line, with the person in the front wearing a blue t-shirt and khaki shorts, the person behind them wearing a white shirt and blue shorts, and the person to the left wearing a gray shirt and black shorts. The hill is covered in green grass and there are trees and bushes on either side. In the background, there is a clear blue sky and a view of the horizon. The group appears to be on a hike or a picnic, enjoying the scenery.']
-Caption:","eople walking in a line on a grassy hillside with trees and bushes on either side, a clear blue sky in the background."
+Caption:","eople walking in a line on a grassy hillside with trees and bushes on either side, a clear blue sky in the background.","Generative Task:
+CHAIR:		 14.3
+Cover:		 20.0
+Hal:		 33.4
+Cog:		 0.0 
+
+[0m"
 2.0,"['boat', 'paddle', 'calm', 'cruise ship', 'rowboat', 'canoe', 'ferry', 'person', 'kayak', 'lake', 'life jacket', 'man', 'oar', 'sea', 'red', 'sit', 'vessel', 'water']","['Detected paddle rowboat canoeak at location [71.14382934570312, 296.8223571777344, 314.9167175292969, 374.21734619140625]']","['The image shows a man in a red canoe on a calm lake. He is wearing a green shirt and a red life jacket. The man is facing away from the camera and appears to be looking out towards the horizon. In the background, there is a large cruise ship docked at a pier and a small island with trees and buildings. The sky is blue and the water is calm. The overall mood of the image is peaceful and serene.']","You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information and keep the caption short and relevant.
 Details:
 - Detected objects: Detected paddle rowboat canoeak at location [71.14382934570312, 296.8223571777344, 314.9167175292969, 374.21734619140625],
 - Scene context: boat, paddle, calm, cruise ship, rowboat, canoe, ferry, person, kayak, lake, life jacket, man, oar, sea, red, sit, vessel, water,
 - OCR text: None,
  - World Knowledge: ['The image shows a man in a red canoe on a calm lake. He is wearing a green shirt and a red life jacket. The man is facing away from the camera and appears to be looking out towards the horizon. In the background, there is a large cruise ship docked at a pier and a small island with trees and buildings. The sky is blue and the water is calm. The overall mood of the image is peaceful and serene.']
-Caption:","red canoe on a calm lake, facing away, near a cruise ship and small island."
+Caption:","red canoe on a calm lake, facing away, near a cruise ship and small island.","Generative Task:
+CHAIR:		 14.3
+Cover:		 20.0
+Hal:		 33.4
+Cog:		 0.0 
+
+[0m"
 3.0,"['baby', 'boy', 'child', 'dandelion', 'field', 'grass', 'grassy', 'green', 'laugh', 'lush', 'shirt', 'stand', 'toddler']",[],"['The image shows a young child, probably around 2-3 years old, standing on a grassy field. The child is wearing a red and black striped shirt and grey pants. He has a bald head and appears to be in a playful mood. His arms are stretched out to the sides and his mouth is open, as if he is shouting or laughing. The grass is green and there are small yellow flowers scattered around. In the background, there are trees and a blue sky.']","You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information and keep the caption short and relevant.
 Details:
 - Detected objects: ,
 - Scene context: baby, boy, child, dandelion, field, grass, grassy, green, laugh, lush, shirt, stand, toddler,
 - OCR text: None,
  - World Knowledge: ['The image shows a young child, probably around 2-3 years old, standing on a grassy field. The child is wearing a red and black striped shirt and grey pants. He has a bald head and appears to be in a playful mood. His arms are stretched out to the sides and his mouth is open, as if he is shouting or laughing. The grass is green and there are small yellow flowers scattered around. In the background, there are trees and a blue sky.']
-Caption:","er with a bald head stands on a grassy field, wearing a red and black striped shirt and grey pants. His arms are stretched out, and he laughs with yellow dandelions visible in the background."
+Caption:","er with a bald head stands on a grassy field, wearing a red and black striped shirt and grey pants. His arms are stretched out, and he laughs with yellow dandelions visible in the background.","Generative Task:
+CHAIR:		 14.3
+Cover:		 20.0
+Hal:		 33.4
+Cog:		 0.0 
+
+[0m"

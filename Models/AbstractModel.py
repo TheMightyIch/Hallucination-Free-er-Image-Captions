@@ -37,7 +37,7 @@ class AbstractModel(ABC):
             print(f"Model {self.model_alias} loaded to {self.DEVICE}")
 
     @abstractmethod
-    def generateResponse(self, **inputs):
+    def generateResponse(self, **inputs)-> list[str]:
         pass
     @abstractmethod
     def generateModel(self, **inputs):

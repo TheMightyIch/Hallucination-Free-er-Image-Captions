@@ -1,11 +1,10 @@
 import os
 
-import torch
 from ram import get_transform
 from ram import inference_ram as inference
 from ram.models import ram_plus
 
-from Models.AbstractModel import  AbstractModel
+from Models.AbstractModel import AbstractModel
 
 
 class RamPlusPlus(AbstractModel):

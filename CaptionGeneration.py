@@ -1,6 +1,9 @@
 # Function to create a prompt
 import ast
+import importlib
+import inspect
 import json
+import os
 import subprocess
 import sys
 
@@ -9,15 +12,11 @@ import pandas
 import pandas as pd
 import torch.cuda
 from PIL import Image
-import os
-import importlib
-import inspect
-
 from pandas import DataFrame
 from tqdm import tqdm
 
 import Models.AbstractModel
-from AMBER.inference import main as amber_main
+
 MODELS_FOLDER = "Models"
 
 
@@ -259,7 +258,7 @@ def main():
             result= pd.read_csv(cfg["data_file_path"])
             print("Data loaded")
         except FileNotFoundError:
-            assert "Error: File not found"
+            print(f"no file found at: {cfg["data_file_path"]}")
             exit()
     else:
         image = load_images(cfg["ImageFolder"])
@@ -303,7 +302,6 @@ def main():
 
 
 if __name__ == "__main__":
-    import Models.LLAMA32
     # Run the test
     main()
 

@@ -1,21 +1,20 @@
 {
-  "LLM": "LLAMA32",
   "Models": [
-    "LLAMA32",
+    "Qwen25",
     "groundingDINO",
     "RamPlusPlus",
     "Florence2"
   ],
   "Prompt": "You are a caption generation model. Based on the details provided below, generate a concise and accurate caption for the image. Only describe what is mentioned in the details. Avoid any additional or imagined information and keep the caption short and relevant.\nDetails:\n- Detected objects: {Objects},\n- Scene context: {Context},\n- OCR text: {OCR},\n - World Knowledge: {WorldKnowledge}\nCaption:",
   "ImageFolder": "S:\\phili\\GitHub\\Hallucination-Free-er-Image-Captions\\image",
-  "result_name": "Basic Run.csv",
+  "result_name": "Qwen Run.csv",
   "result_path": "S:\\phili\\GitHub\\Hallucination-Free-er-Image-Captions\\Results\\",
   "caption_file_storage": "caption.json",
-  "existing_data": true,
-  "existing_prompt": true,
-  "existing_caption": true,
+  "existing_data": false,
+  "existing_prompt": false,
+  "existing_caption": false,
   "data_file_path": "S:\\phili\\GitHub\\Hallucination-Free-er-Image-Captions\\generated_captions.csv",
-  "skip_caption_generation": true,
+  "skip_caption_generation": false,
   "show_prompt": false,
   "skip_evaluation": false,
   "batch_size": 300

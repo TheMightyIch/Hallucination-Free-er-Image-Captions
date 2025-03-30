@@ -1,9 +1,9 @@
-import torch
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import os
 
-from Models.AbstractModel import  AbstractModel
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
+from Models.AbstractModel import AbstractModel
 
 
 class LLAMA32(AbstractModel):
